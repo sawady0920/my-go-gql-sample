@@ -18,7 +18,7 @@ type User {
 
 type Schedule {
   id: ID!
-  name: String!
+  title: String!
   user: User!
 }
 
@@ -41,7 +41,13 @@ input NewUser {
   name: String!
 }
 
+input NewSchedule{
+  title: String!
+  userId: String!
+}
+
 type Mutation {
   createTodo(input: NewTodo!): ID!
   createUser(input: NewUser!): ID!
+  createSchedule(input: NewSchedule!): ID!
 }

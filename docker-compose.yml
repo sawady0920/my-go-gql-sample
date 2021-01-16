@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  go:
+    container_name: my-go-gql-sample
+    build: ./api
+    ports:
+      - 8080:8080
+    volumes:
+      - ./api/:/go/api/
+    working_dir: /go/api

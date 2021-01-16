@@ -6,6 +6,7 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"my-go-gql-sample/database"
 	"my-go-gql-sample/graph/generated"
@@ -103,6 +104,10 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 		ID:   user.ID,
 		Name: user.Name,
 	}, nil
+}
+
+func (r *queryResolver) Schedules(ctx context.Context) ([]*model.Schedule, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Mutation returns generated.MutationResolver implementation.

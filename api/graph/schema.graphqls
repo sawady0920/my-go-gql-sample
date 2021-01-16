@@ -13,6 +13,13 @@ type User {
   id: ID!
   name: String!
   todos: [Todo!]!
+  schedule: [Schedule!]!
+}
+
+type Schedule {
+  id: ID!
+  name: String!
+  user: User!
 }
 
 type Query {
@@ -21,6 +28,8 @@ type Query {
 
   users: [User!]!
   user(id: ID!): User!
+
+  schedules: [Schedule]!
 }
 
 input NewTodo {

@@ -11,6 +11,12 @@ type NewUser struct {
 	Name string `json:"name"`
 }
 
+type Schedule struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	User *User  `json:"user"`
+}
+
 type Todo struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
@@ -19,7 +25,8 @@ type Todo struct {
 }
 
 type User struct {
-	ID    string  `json:"id"`
-	Name  string  `json:"name"`
-	Todos []*Todo `json:"todos"`
+	ID       string      `json:"id"`
+	Name     string      `json:"name"`
+	Todos    []*Todo     `json:"todos"`
+	Schedule []*Schedule `json:"schedule"`
 }

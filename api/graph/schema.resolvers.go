@@ -110,11 +110,32 @@ func (r *queryResolver) Schedules(ctx context.Context) ([]*model.Schedule, error
 	panic(fmt.Errorf("not implemented"))
 }
 
+func (r *userResolver) Todos(ctx context.Context, obj *model.User) ([]*model.Todo, error) {
+	log.Println("[userResolver.Todos]")
+	todos, err := database.NewTodoDao(r.DB).FindByUserID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	var results []*model.Todo
+	for _, todo := range todos {
+		results = append(results, &model.Todo{
+			ID:   todo.ID,
+			Text: todo.Text,
+			Done: todo.Done,
+		})
+	}
+	return results, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }

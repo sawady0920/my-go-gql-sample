@@ -42,6 +42,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 	return id, nil
 }
 
+func (r *mutationResolver) CreateSchedule(ctx context.Context, input model.NewSchedule) (string, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	log.Println("[queryResolver.Todos]")
 	todos, err := database.NewTodoDao(r.DB).FindAll()

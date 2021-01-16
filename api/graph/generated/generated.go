@@ -45,8 +45,9 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateTodo func(childComplexity int, input model.NewTodo) int
-		CreateUser func(childComplexity int, input model.NewUser) int
+		CreateSchedule func(childComplexity int, input model.NewSchedule) int
+		CreateTodo     func(childComplexity int, input model.NewTodo) int
+		CreateUser     func(childComplexity int, input model.NewUser) int
 	}
 
 	Query struct {
@@ -58,9 +59,9 @@ type ComplexityRoot struct {
 	}
 
 	Schedule struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
-		User func(childComplexity int) int
+		ID    func(childComplexity int) int
+		Title func(childComplexity int) int
+		User  func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -81,6 +82,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, input model.NewTodo) (string, error)
 	CreateUser(ctx context.Context, input model.NewUser) (string, error)
+	CreateSchedule(ctx context.Context, input model.NewSchedule) (string, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
@@ -107,6 +109,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Mutation.createSchedule":
+		if e.complexity.Mutation.CreateSchedule == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSchedule_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSchedule(childComplexity, args["input"].(model.NewSchedule)), true
 
 	case "Mutation.createTodo":
 		if e.complexity.Mutation.CreateTodo == nil {
@@ -184,12 +198,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Schedule.ID(childComplexity), true
 
-	case "Schedule.name":
-		if e.complexity.Schedule.Name == nil {
+	case "Schedule.title":
+		if e.complexity.Schedule.Title == nil {
 			break
 		}
 
-		return e.complexity.Schedule.Name(childComplexity), true
+		return e.complexity.Schedule.Title(childComplexity), true
 
 	case "Schedule.user":
 		if e.complexity.Schedule.User == nil {
@@ -318,7 +332,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
+	{Name: "graph/schema/schema.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
@@ -338,7 +352,7 @@ type User {
 
 type Schedule {
   id: ID!
-  name: String!
+  title: String!
   user: User!
 }
 
@@ -361,9 +375,15 @@ input NewUser {
   name: String!
 }
 
+input NewSchedule{
+  title: String!
+  userId: String!
+}
+
 type Mutation {
   createTodo(input: NewTodo!): ID!
   createUser(input: NewUser!): ID!
+  createSchedule(input: NewSchedule!): ID!
 }
 `, BuiltIn: false},
 }
@@ -372,6 +392,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createSchedule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewSchedule
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewSchedule2myᚑgoᚑgqlᚑsampleᚋgraphᚋmodelᚐNewSchedule(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -554,6 +589,48 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(model.NewUser))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createSchedule(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createSchedule_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateSchedule(rctx, args["input"].(model.NewSchedule))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -865,7 +942,7 @@ func (ec *executionContext) _Schedule_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Schedule_name(ctx context.Context, field graphql.CollectedField, obj *model.Schedule) (ret graphql.Marshaler) {
+func (ec *executionContext) _Schedule_title(ctx context.Context, field graphql.CollectedField, obj *model.Schedule) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -883,7 +960,7 @@ func (ec *executionContext) _Schedule_name(ctx context.Context, field graphql.Co
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.Title, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2302,6 +2379,34 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputNewSchedule(ctx context.Context, obj interface{}) (model.NewSchedule, error) {
+	var it model.NewSchedule
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "title":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			it.Title, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			it.UserID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj interface{}) (model.NewTodo, error) {
 	var it model.NewTodo
 	var asMap = obj.(map[string]interface{})
@@ -2380,6 +2485,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "createUser":
 			out.Values[i] = ec._Mutation_createUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createSchedule":
+			out.Values[i] = ec._Mutation_createSchedule(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2510,8 +2620,8 @@ func (ec *executionContext) _Schedule(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "name":
-			out.Values[i] = ec._Schedule_name(ctx, field, obj)
+		case "title":
+			out.Values[i] = ec._Schedule_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2897,6 +3007,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNNewSchedule2myᚑgoᚑgqlᚑsampleᚋgraphᚋmodelᚐNewSchedule(ctx context.Context, v interface{}) (model.NewSchedule, error) {
+	res, err := ec.unmarshalInputNewSchedule(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNNewTodo2myᚑgoᚑgqlᚑsampleᚋgraphᚋmodelᚐNewTodo(ctx context.Context, v interface{}) (model.NewTodo, error) {

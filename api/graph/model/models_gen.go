@@ -2,6 +2,11 @@
 
 package model
 
+type NewSchedule struct {
+	Title  string `json:"title"`
+	UserID string `json:"userId"`
+}
+
 type NewTodo struct {
 	Text   string `json:"text"`
 	UserID string `json:"userId"`
@@ -12,9 +17,9 @@ type NewUser struct {
 }
 
 type Schedule struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	User *User  `json:"user"`
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	User  *User  `json:"user"`
 }
 
 type Todo struct {

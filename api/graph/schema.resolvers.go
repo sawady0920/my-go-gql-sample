@@ -6,7 +6,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"my-go-gql-sample/database"
 	"my-go-gql-sample/graph/generated"
@@ -43,7 +42,17 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 }
 
 func (r *mutationResolver) CreateSchedule(ctx context.Context, input model.NewSchedule) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	log.Printf("[mutationResolver.CreateSchedule] input: %#v", input)
+	id := util.CreateUniqueID()
+	err := database.NewScheduleDao(r.DB).InsertOne(&database.Schedule{
+		ID:     id,
+		Title:  input.Title,
+		UserID: input.UserID,
+	})
+	if err != nil {
+		return "", err
+	}
+	return id, nil
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
@@ -111,7 +120,19 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 }
 
 func (r *queryResolver) Schedules(ctx context.Context) ([]*model.Schedule, error) {
-	panic(fmt.Errorf("not implemented"))
+	log.Println("[queryResolver.Schedules]")
+	schedules, err := database.NewScheduleDao(r.DB).FindAll()
+	if err != nil {
+		return nil, err
+	}
+	var results []*model.Schedule
+	for _, schedule := range schedules {
+		results = append(results, &model.Schedule{
+			ID:    schedule.ID,
+			Title: schedule.Title,
+		})
+	}
+	return results, nil
 }
 
 func (r *userResolver) Todos(ctx context.Context, obj *model.User) ([]*model.Todo, error) {

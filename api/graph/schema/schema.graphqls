@@ -7,6 +7,7 @@ type Todo {
   text: String!
   done: Boolean!
   user: User!
+  tags: [Tag]!
 }
 
 type User {
@@ -14,6 +15,13 @@ type User {
   name: String!
   todos: [Todo!]!
   schedule: [Schedule!]!
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  user: User!
+  todo: [Todo!]!
 }
 
 type Schedule {
@@ -46,8 +54,14 @@ input NewSchedule{
   userId: String!
 }
 
+input NewTag{
+  name: String!
+  todoId: String!
+}
+
 type Mutation {
   createTodo(input: NewTodo!): ID!
   createUser(input: NewUser!): ID!
   createSchedule(input: NewSchedule!): ID!
+  createTag(input: NewTag!): ID!
 }

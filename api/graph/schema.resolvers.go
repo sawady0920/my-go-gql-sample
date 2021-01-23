@@ -6,11 +6,13 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"my-go-gql-sample/database"
 	"my-go-gql-sample/graph/generated"
 	"my-go-gql-sample/graph/model"
 	"my-go-gql-sample/util"
+	"my-go-gql-sample/util/middleware/auth"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (string, error) {
@@ -48,6 +50,22 @@ func (r *mutationResolver) CreateSchedule(ctx context.Context, input model.NewSc
 		ID:     id,
 		Title:  input.Title,
 		UserID: input.UserID,
+	})
+	if err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+func (r *mutationResolver) CreateTag(ctx context.Context, input model.NewTag) (string, error) {
+	log.Printf("[mutationResolver.CreateTag] input: %#v", input)
+	user := auth.ForContext(ctx)
+
+	id := util.CreateUniqueID()
+	err := database.NewTagDao(r.DB).InsertOne(&database.Tag{
+		ID:     id,
+		Name:   input.Name,
+		UserID: user.ID,
 	})
 	if err != nil {
 		return "", err
@@ -135,6 +153,10 @@ func (r *queryResolver) Schedules(ctx context.Context) ([]*model.Schedule, error
 	return results, nil
 }
 
+func (r *todoResolver) Tags(ctx context.Context, obj *model.Todo) ([]*model.Tag, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *userResolver) Todos(ctx context.Context, obj *model.User) ([]*model.Todo, error) {
 	log.Println("[userResolver.Todos]")
 	todos, err := database.NewTodoDao(r.DB).FindByUserID(obj.ID)
@@ -158,9 +180,13 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// Todo returns generated.TodoResolver implementation.
+func (r *Resolver) Todo() generated.TodoResolver { return &todoResolver{r} }
+
 // User returns generated.UserResolver implementation.
 func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type todoResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }

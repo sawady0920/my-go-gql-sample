@@ -5,6 +5,7 @@ import (
 	"log"
 	"my-go-gql-sample/graph"
 	"my-go-gql-sample/graph/generated"
+	"my-go-gql-sample/util/middleware/auth"
 	"net/http"
 	"os"
 	"time"
@@ -67,8 +68,17 @@ func main() {
 		),
 	)
 
+	rowDBdriver, err := db.DB()
+	if err != nil {
+		fmt.Printf("DB Open Error :%v", err)
+		panic(err.Error())
+	}
+
+	authHandler := auth.Middleware(rowDBdriver)
+	http.Handle("/auth", authHandler(srv))
+
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	// http.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

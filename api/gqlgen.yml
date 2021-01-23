@@ -58,3 +58,7 @@ models:
     fields:
       todos:
         resolver: true
+  Todo:
+    fields:
+      tags:
+        resolver: true

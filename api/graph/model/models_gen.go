@@ -7,6 +7,11 @@ type NewSchedule struct {
 	UserID string `json:"userId"`
 }
 
+type NewTag struct {
+	Name   string `json:"name"`
+	TodoID string `json:"todoId"`
+}
+
 type NewTodo struct {
 	Text   string `json:"text"`
 	UserID string `json:"userId"`
@@ -22,11 +27,19 @@ type Schedule struct {
 	User  *User  `json:"user"`
 }
 
+type Tag struct {
+	ID   string  `json:"id"`
+	Name string  `json:"name"`
+	User *User   `json:"user"`
+	Todo []*Todo `json:"todo"`
+}
+
 type Todo struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
 	Done bool   `json:"done"`
 	User *User  `json:"user"`
+	Tags []*Tag `json:"tags"`
 }
 
 type User struct {
